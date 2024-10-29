@@ -1,3 +1,5 @@
+pub mod config_constants;
+
 const CEA_FILE:&str = "FCEA2.exe";
 
 pub fn add(left: u64, right: u64) -> u64 {
