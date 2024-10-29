@@ -51,5 +51,6 @@
  !
  thermo
  e-               g12/98   0.000000E+00     Ref-Species. Chase,1998 3/82.                                 
+ ALCL3(L)         tpis96  -0.705100E+06     Liquid. Gurvich,1996a pt1 p172 pt2 p133.                      
  ALF3(II)         tpis96  -0.151040E+07     Hexagonal. Gurvich,1996a pt1 p156 pt2 p119.                   
  ALF3(I)          tpis96  -0.151040E+07     Cubic. Gurvich,1996a pt1 p156 pt2 p119.                       
