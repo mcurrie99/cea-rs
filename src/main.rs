@@ -1,4 +1,4 @@
-// use cea_rs::files::read_f64;
+use cea_rs::*;
 
 fn main() {
     // if cfg!(target_os = "windows") {
