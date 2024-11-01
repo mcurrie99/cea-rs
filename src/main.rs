@@ -1,4 +1,4 @@
-use cea_rs::*;
+use cea_rs;
 
 fn main() {
     // if cfg!(target_os = "windows") {
