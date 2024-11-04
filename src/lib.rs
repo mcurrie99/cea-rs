@@ -1,7 +1,16 @@
+// Constant
+const CEA_FILE:&str = "FCEA2.exe";
+
+
+// Code for new interpretation
 // pub mod config_constants;
 pub mod files;
 
-const CEA_FILE:&str = "FCEA2.exe";
+// Legacy Code
+pub mod legacy;
+
+
+
 
 
 #[cfg(test)]
