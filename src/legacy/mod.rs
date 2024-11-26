@@ -17,7 +17,7 @@ use tempfile::tempfile;
 //  be increased for wider paper or smaller fonts
 const MAXNGC: usize = 600;
 const MAXNC: i32 = 300;
-const NCOL: i32 = 8;
+const NCOL: usize = 8;
 const MAXMAT: i32 = 50;
 const MAXTR: i32 = 40;
 const MAXR: i32 = 24;
@@ -36,6 +36,41 @@ const IOSCH: i32 = 13;
 const IOTHM: i32 = 14;
 const IOPLT: i32 = 15;
 const IOTRN: i32 = 18;
+
+// This structure is going to be how we simulate global variables that need to
+// be mutable by just continuously passing around the structure
+// PSA: I know this is probably a terrible implementation for doing this
+// but it is going to work and it's the legacy version so who cares
+struct cea_data {
+    Debug: Option<[bool; NCOL]>,
+    Nonly: Option<isize>,
+    ioout: Option<File>,
+    ioinp: Option<File>,
+    ioplt: Option<File>
+
+}
+
+impl cea_data {
+    fn initialize() -> Self {
+        let data = cea_data {
+            
+            // TODO: Say what these actually are in documentation
+            Debug: None,
+            Nonly: None,
+            
+            // Files that will be handled
+            ioout: None,
+            ioinp: None,
+            ioplt: None,
+        };
+
+        return data;
+    }
+}
+
+
+// STATIC VARIABLES ADDED
+// static mut NONLY: i32 = 0;
 
 
 // TODO: Ensure that these declarations are necessary
@@ -67,6 +102,8 @@ pub fn run_legacy() {
     println!(" ENTER INPUT FILE NAME WITHOUT .INP EXTENSION");
     println!("   THE OUTPUT FILES FOR LISTING AND PLOTTING WILL HAVE");
     println!(" THE SAME NAME WITH EXTENSIONS .out AND .plt RESPECTIVELY\n\n");
+
+    let mut data: cea_data = cea_data::initialize();
 
     // Grabs value from input and formats it.
     let mut prefix = String::new();
@@ -128,13 +165,13 @@ pub fn run_legacy() {
 
     // label_100(&mut readok, &mut caseok, &mut ensert);
 
-    INPUT(&mut readok, &mut caseok, &mut ensert, &mut ioout)
+    INPUT(&mut readok, &mut caseok, &mut ensert, &mut data)
 
 
 
 }
 
-fn INPUT(readok: &mut bool, caseok: &mut bool, ensert: &mut [String; 20], ioout: &mut File) {
+fn INPUT(readok: &mut bool, caseok: &mut bool, ensert: &mut [String; 20], data: &mut cea_data) {
   
     println!("{}", readok);
     println!("{}", caseok);
@@ -187,8 +224,22 @@ fn INPUT(readok: &mut bool, caseok: &mut bool, ensert: &mut [String; 20], ioout:
     let DSQRT: f64;
 
     // Execution of Code
-    ioout.write(b"\n\n");
-    ioout.write(b"Hello World");
+    data.ioout
+        .expect("File was not intialized properly")
+        .write(b"\n\n");
+
+    *caseok = true;
+    let Nonly = 0;
+    let Nomit = 0;
+    let Nsert = 0;
+    reacts = false;
+    let Trace = 0;
+    let Short = false;
+    let Massf = false;
+
+    for i in 1..NCOL {
+        Debug[i] = false;
+    }
 
 
 }
