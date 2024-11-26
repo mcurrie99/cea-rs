@@ -15,7 +15,7 @@ use tempfile::tempfile;
 //  They are definedi n part 2, pages 39 of the manuals, NASA RP-1311
 //  The variable NCOL set the number of columns in the output. It may
 //  be increased for wider paper or smaller fonts
-const MAXNGC: i32 = 600;
+const MAXNGC: usize = 600;
 const MAXNC: i32 = 300;
 const NCOL: i32 = 8;
 const MAXMAT: i32 = 50;
@@ -36,6 +36,7 @@ const IOSCH: i32 = 13;
 const IOTHM: i32 = 14;
 const IOPLT: i32 = 15;
 const IOTRN: i32 = 18;
+
 
 // TODO: Ensure that these declarations are necessary
 // We can probably remove a few from this and be fine
@@ -124,16 +125,72 @@ pub fn run_legacy() {
     // Calls INPUT Function of CEA
     let mut caseok = true;
     let mut readok = true;
-    INPUT(&mut readok, &mut caseok, &mut ensert)
+
+    // label_100(&mut readok, &mut caseok, &mut ensert);
+
+    INPUT(&mut readok, &mut caseok, &mut ensert, &mut ioout)
 
 
 
 }
 
-fn INPUT(readok: &mut bool, caseok: &mut bool, ensert: &mut [String; 20]) {
+fn INPUT(readok: &mut bool, caseok: &mut bool, ensert: &mut [String; 20], ioout: &mut File) {
+  
     println!("{}", readok);
     println!("{}", caseok);
     println!("{:?}", ensert);
+
+    // Local Variables Strings
+    let mut cin: [String; MAXNGC]  = std::array::from_fn(|_| String::new());
+    let mut ensert: [String; 20] = Default::default();
+    let mut code: String = String::new();
+    let mut cx4 = String::new();
+    let mut cx1 = String::new();
+    let mut cx2 = String::new();
+    let mut cx3 = String::new();
+    let mut lc = String::new();
+    let mut uc = String::new();
+
+    // Local Variables Bools
+    let eqrats: bool;
+    let incd: bool;
+    let phi: bool;
+    let pltdat: bool;
+    let reacts: bool;
+    let refl: bool;
+
+    // Integers
+    let i: isize;
+    let ifrmla: isize;
+    let ii: isize;
+    let in_cea: isize; // _cea to avoid the in keyword
+    let iv:  isize;
+    let ix: isize;
+    let j: isize;
+    let jj: isize;
+    let k: isize;
+    let lcin: [isize; MAXNGC];
+    let ncin: isize;
+    let nmix: isize;
+    let INDEX: isize;
+    
+    // Floating Points
+    let denmtr: f64;
+    let dpin: [f64; MAXNGC];
+    let eratio: f64;
+    let hr: f64;
+    let mix: [f64; MAXNGC];
+    let ur: f64;
+    let xyz: f64;
+    let DABS: f64;
+    let DMIN1: f64;
+    let DSQRT: f64;
+
+    // Execution of Code
+    ioout.write(b"\n\n");
+    ioout.write(b"Hello World");
+
+
 }
 
 
@@ -141,3 +198,12 @@ fn UTHERM() {
     // 
 
 }
+
+// label Functions
+// fn label_100(readok: &mut bool, caseok: &mut bool, ensert: &mut [String; 20]) {
+//     let Iplt = 0;
+//     let Nplt = 0;
+
+//     INPUT(readok, caseok, ensert);
+
+// }
