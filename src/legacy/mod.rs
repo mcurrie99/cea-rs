@@ -44,9 +44,16 @@ const IOTRN: i32 = 18;
 struct cea_data {
     Debug: Option<[bool; NCOL]>,
     Nonly: Option<isize>,
+
+    // .inp, .out, .plt files
     ioout: Option<File>,
     ioinp: Option<File>,
-    ioplt: Option<File>
+    ioplt: Option<File>,
+
+    // Library and Scrath Files
+    iothm: Option<File>,
+    iotrn: Option<File>,
+    iosch: Option<File>,
 
 }
 
@@ -62,6 +69,11 @@ impl cea_data {
             ioout: None,
             ioinp: None,
             ioplt: None,
+
+            // Library and Scratch Files
+            iothm: None,
+            iotrn: None,
+            iosch: None,
         };
 
         return data;
@@ -122,12 +134,12 @@ pub fn run_legacy() {
 
     // Tries to open infile
     let err_msg = format!("{} DOES NOT EXIST", infile);
-    let ioinp = File::open(&infile).expect(err_msg.as_str());
+    data.ioinp = Some(File::open(&infile).expect(err_msg.as_str()));
 
     // Opens or creates the outfile
     let mut ioout = match OpenOptions::new().read(true).write(true).open(&ofile) {
-        Ok(file) => file,
-        Err(_) => File::create(&ofile).expect("Could no creat .out file"),
+        Ok(file) => Some(file),
+        Err(_) => Some(File::create(&ofile).expect("Could no creat .out file")),
     };
 
     // Creates temporary scratch file
@@ -138,20 +150,27 @@ pub fn run_legacy() {
 
 
     // Writes to .out file
-    ioout.
-    write_all( b"********************************\
-    ***********************************************\n")
-    .expect("Unable to write to file.");
+    data.ioout
+        .as_mut()
+        .expect("Output File was not initialized correctly")
+        .write_all( b"********************************\
+        ***********************************************\n")
+        .expect("Unable to write to file.");
 
     // Information
-    ioout.write_all(b"         NASA-GLENN CHEMICAL EQUILIBRIUM PROGRAM CEA2, MAY 21, 2004
+    data.ioout
+    .as_mut()
+    .expect("Ouput file was not intialized correctly")
+    .write_all(b"         NASA-GLENN CHEMICAL EQUILIBRIUM PROGRAM CEA2, MAY 21, 2004
                    BY  BONNIE MCBRIDE AND SANFORD GORDON
      REFS: NASA RP-1311, PART I, 1994 AND NASA RP-1311, PART II, 1996\n")
     .expect("Unable to write to file");
 
     // Formatting
-    ioout.
-    write_all( b"********************************\
+    data.ioout
+    .as_mut()
+    .unwrap()
+    .write_all( b"********************************\
     ***********************************************\n")
     .expect("Unable to write to file.");
 
@@ -225,8 +244,16 @@ fn INPUT(readok: &mut bool, caseok: &mut bool, ensert: &mut [String; 20], data: 
 
     // Execution of Code
     data.ioout
-        .expect("File was not intialized properly")
-        .write(b"\n\n");
+        .as_mut()
+        .expect("1 Output File was not intialized properly")
+        .write(b"\n\n")
+        .expect("Could not write to output file");
+
+    data.ioout
+        .as_mut()
+        .expect("2 Output Failed was not initialized properly")
+        .write(b"Hello Wolrd")
+        .expect("Could not write to Output File.");
 
     *caseok = true;
     let Nonly = 0;
@@ -237,10 +264,8 @@ fn INPUT(readok: &mut bool, caseok: &mut bool, ensert: &mut [String; 20], data: 
     let Short = false;
     let Massf = false;
 
-    for i in 1..NCOL {
-        Debug[i] = false;
-    }
-
+    // Sets debug data
+    data.Debug = Some([false; NCOL]);
 
 }
 
