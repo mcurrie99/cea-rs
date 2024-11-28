@@ -2,6 +2,11 @@
 // - Fortran does not seem to have dynamically sizing arrays
 //   Ensure to use caution since we have no check, we can implement a 
 //   structure to do this but it would be unecessary.
+// - PLEASE READ THE NOTES
+// - Keep the structure for variables that will be passed between the functions
+// - Create a structure for each function that allows for the local variables to remain
+// - We can also create static variables and use unsafe rust but we should try
+//   to stray from this.
 
 
 // Support for legacy CEA will be added here so that the application
@@ -42,8 +47,18 @@ const IOTRN: i32 = 18;
 // PSA: I know this is probably a terrible implementation for doing this
 // but it is going to work and it's the legacy version so who cares
 struct cea_data {
+    // Variables
+    // TODO: Figure out what they all do
     Debug: Option<[bool; NCOL]>,
     Nonly: Option<isize>,
+    Nomit: Option<isize>,
+    Nsert: Option<isize>,
+    Trace: Option<isize>,
+    Short: Option<bool>,
+    Massf: Option<bool>,
+    Nplt: Option<isize>,
+    Siunit: Option<bool>,
+    pltdat: Option<bool>,
 
     // .inp, .out, .plt files
     ioout: Option<File>,
@@ -64,6 +79,14 @@ impl cea_data {
             // TODO: Say what these actually are in documentation
             Debug: None,
             Nonly: None,
+            Nomit: None,
+            Nsert: None,
+            Trace: None,
+            Short: None,
+            Massf: None,
+            Nplt: None,
+            Siunit: None,
+            pltdat: None,
             
             // Files that will be handled
             ioout: None,
@@ -137,16 +160,15 @@ pub fn run_legacy() {
     data.ioinp = Some(File::open(&infile).expect(err_msg.as_str()));
 
     // Opens or creates the outfile
-    let mut ioout = match OpenOptions::new().read(true).write(true).open(&ofile) {
+    data.ioout = match OpenOptions::new().read(true).write(true).open(&ofile) {
         Ok(file) => Some(file),
         Err(_) => Some(File::create(&ofile).expect("Could no creat .out file")),
     };
 
     // Creates temporary scratch file
-    let iosch = tempfile().expect("Unable to creates temp file");
-
-    let iothm = File::open("./thermo.lib").expect("Could not open thermo.lib");
-    let iotrn = File::open("./trans.lib").expect("Could not open trans.lib");
+    data.iosch = Some(tempfile().expect("Unable to creates temp file"));
+    data.iothm = Some(File::open("./thermo.lib").expect("Could not open thermo.lib"));
+    data.iotrn = Some(File::open("./trans.lib").expect("Could not open trans.lib"));
 
 
     // Writes to .out file
@@ -166,7 +188,7 @@ pub fn run_legacy() {
      REFS: NASA RP-1311, PART I, 1994 AND NASA RP-1311, PART II, 1996\n")
     .expect("Unable to write to file");
 
-    // Formatting
+    // Formatting for file
     data.ioout
     .as_mut()
     .unwrap()
@@ -188,6 +210,10 @@ pub fn run_legacy() {
 
 
 
+}
+
+struct INPUT_vals {
+    
 }
 
 fn INPUT(readok: &mut bool, caseok: &mut bool, ensert: &mut [String; 20], data: &mut cea_data) {
@@ -249,29 +275,50 @@ fn INPUT(readok: &mut bool, caseok: &mut bool, ensert: &mut [String; 20], data: 
         .write(b"\n\n")
         .expect("Could not write to output file");
 
-    data.ioout
-        .as_mut()
-        .expect("2 Output Failed was not initialized properly")
-        .write(b"Hello Wolrd")
-        .expect("Could not write to Output File.");
-
     *caseok = true;
-    let Nonly = 0;
-    let Nomit = 0;
-    let Nsert = 0;
+    data.Nonly = Some(0);
+    data.Nomit = Some(0);
+    data.Nsert = Some(0);
     reacts = false;
-    let Trace = 0;
-    let Short = false;
-    let Massf = false;
+    data.Trace = Some(0);
+    data.Short = Some(false);
+    data.Massf = Some(false);
 
     // Sets debug data
     data.Debug = Some([false; NCOL]);
 
+    data.Nplt = Some(0);
+    data.Siunit = Some(true);
+    data.pltdat = Some(false);
+
+    fn label_100(data: &mut cea_data) {
+        // TODO: Implement INFREE Function
+        INFREE();
+
+        // code = cin[0]
+
+    }
+
+    label_100(data);
+
 }
 
+struct UTHERM_vals {
 
+}
+
+// TODO: Implement Function
 fn UTHERM() {
     // 
+
+}
+
+struct INFREE_vals {
+
+}
+
+// TODO: Implement Function
+fn INFREE() {
 
 }
 
