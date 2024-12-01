@@ -21,16 +21,16 @@ use tempfile::tempfile;
 //  The variable NCOL set the number of columns in the output. It may
 //  be increased for wider paper or smaller fonts
 const MAXNGC: usize = 600;
-const MAXNC: i32 = 300;
+const MAXNC: usize = 300;
 const NCOL: usize = 8;
-const MAXMAT: i32 = 50;
-const MAXTR: i32 = 40;
-const MAXR: i32 = 24;
-const MAXEL: i32 = 20;
-const MAXNG: i32 = 500;
-const MAXMIX: i32 = 52;
-const MAXT: i32 = 51;
-const MAXPV: i32 = 26;
+const MAXMAT: usize = 50;
+const MAXTR: usize = 40;
+const MAXR: usize = 24;
+const MAXEL: usize = 20;
+const MAXNG: usize = 500;
+const MAXMIX: usize = 52;
+const MAXT: usize = 51;
+const MAXPV: usize = 26;
 
 // The following parameters set the input/output unit numbers. These
 //  numbers are also defined in the manual, part 2 p39, and may be
@@ -47,17 +47,99 @@ const IOTRN: i32 = 18;
 // PSA: I know this is probably a terrible implementation for doing this
 // but it is going to work and it's the legacy version so who cares
 struct cea_data {
-    // Variables
-    // TODO: Figure out what they all do
+    // Computational Block of Variables (cea.inc)
+    Enn: Option<f64>,
+    Ennl: Option<f64>,
+    Enlsav: Option<f64>,
+    Ensave: Option<f64>,
+    Sumn: Option<f64>,
+    Deln: Option<[f64; MAXNGC]>,
+    En: Option<[[f64; MAXNGC]; NCOL]>,
+
+    // Index Block of Variables (cea.inc)
+    Ip: Option<i64>,
+    Iplt: Option<i64>,
+    It: Option<i64>,
+    Nc: Option<i64>,
+    Ng: Option<i64>,
+    Ngp1: Option<i64>,
+    Nlm: Option<i64>,
+    Nplt: Option<i64>,
+    Nof: Option<i64>,
+    Nomit: Option<i64>,
+    Nonly: Option<i64>,
+    Np: Option<i64>,
+    Npr: Option<i64>,
+    Npt: Option<i64>,
+    Ngc: Option<i64>,
+    Nsert: Option<i64>,
+    Nspr: Option<i64>,
+    Nspx: Option<i64>,
+    Nt: Option<i64>,
+    Jcond: Option<[i64; 45]>,
+    Jx: Option<[i64; MAXEL]>,
+    Nfla: Option<[i64; MAXR]>,
+    Ifz: Option<[i64; MAXNC]>,
+
+    // Input Block of Variables (cea.inc)
+    Cpmix: Option<f64>,
+    Wmix: Option<f64>,
+    Bcheck: Option<f64>,
+    Am: Option<[f64; 2]>,
+    Hpp: Option<[f64; 2]>,
+    Vmin: Option<[f64; 2]>,
+    Vpls: Option<[f64; 2]>,
+    Wp: Option<[f64; 2]>,
+    Atmwt: Option<[f64; 100]>,
+    Oxf: Option<[f64; MAXMIX]>,
+    P: Option<[f64; MAXPV]>,
+    Rh: Option<[f64; 2]>,
+    T: Option<[f64; MAXT]>,
+    V: Option<[f64; MAXPV]>,
+    Valnce: Option<[f64; 100]>,
+    B0p: Option<[[f64; MAXEL]; 2]>,
+
+    // Miscellaneous Integers Block of Variables (cea.inc)
+    Imat: Option<i64>,
+    Iq1: Option<i64>,
+    Isv: Option<i64>,
+    Jliq: Option<i64>,
+    Jsol: Option<i64>,
+    Lsave: Option<i64>,
+    Msing: Option<i64>,
+
+    // Miscellaneous Boolean Block of Variables (cea.inc)
+    Convg: Option<bool>,
     Debug: Option<[bool; NCOL]>,
-    Nonly: Option<isize>,
-    Nomit: Option<isize>,
-    Nsert: Option<isize>,
-    Trace: Option<isize>,
-    Short: Option<bool>,
+    Detdbg: Option<bool>,
+    Detn: Option<bool>,
+    Eql: Option<bool>,
+    Gonly: Option<bool>,
+    Hp: Option<bool>,
+    Ions: Option<bool>,
     Massf: Option<bool>,
-    Nplt: Option<isize>,
+    Moles: Option<bool>,
+    Newr: Option<bool>,
+    Pderiv: Option<bool>,
+    Shock: Option<bool>,
+    Short: Option<bool>,
     Siunit: Option<bool>,
+    Sp: Option<bool>,
+    Tp: Option<bool>,
+    Trnspt: Option<bool>,
+    Vol: Option<bool>,
+
+
+    // TODO: Figure out what they all do
+    // Debug: Option<[bool; NCOL]>,
+    // Nonly: Option<isize>,
+    // Nomit: Option<isize>,
+    // Nsert: Option<isize>,
+    Trace: Option<isize>,
+    // Short: Option<bool>,
+    // Massf: Option<bool>,
+    // Nplt: Option<isize>,
+    // Siunit: Option<bool>,
     pltdat: Option<bool>,
 
     // .inp, .out, .plt files
@@ -75,17 +157,99 @@ struct cea_data {
 impl cea_data {
     fn initialize() -> Self {
         let data = cea_data {
+            // Computational Block of Variables (cea.inc)
+            Enn: None,
+            Ennl: None,
+            Enlsav: None,
+            Ensave: None,
+            Sumn: None,
+            Deln: None,
+            En: None,
+
+            // Index Block of Variables (cea.inc)
+            Ip: None,
+            Iplt: None,
+            It: None,
+            Jcond: None,
+            Jx: None,
+            Nc: None,
+            Ng: None,
+            Ngp1: None,
+            Nlm: None,
+            Nplt: None,
+            Nof: None,
+            Nomit: None,
+            Nonly: None,
+            Np: None,
+            Npr: None,
+            Npt: None,
+            Ngc: None,
+            Nsert: None,
+            Nspr: None,
+            Nspx: None,
+            Nt: None,
+            Nfla: None,
+            Ifz: None,
+
+            // Input Block of Variables (cea.inc)
+            Am: None,
+            B0p: None,
+            Cpmix: None,
+            Hpp: None,
+            Vmin: None,
+            Vpls: None,
+            Wmix: None,
+            Wp: None,
+            Atmwt: None,
+            Bcheck: None,
+            Oxf: None,
+            P: None,
+            Rh: None,
+            T: None,
+            V: None,
+            Valnce: None,
+
+            // Miscellaneous Integers Block of Variables (cea.inc)
+            Imat: None,
+            Iq1: None,
+            Isv: None,
+            Jliq: None,
+            Jsol: None,
+            Lsave: None,
+            Msing: None,
+
+            // Miscellaneous Booleans Block of Variables (cea.inc)
+            Convg: None,
+            Debug: None,
+            Detdbg: None,
+            Detn: None,
+            Eql: None,
+            Gonly: None,
+            Hp: None,
+            Ions: None,
+            Massf: None,
+            Moles: None,
+            Newr: None,
+            Pderiv: None,
+            Shock: None,
+            Short: None,
+            Siunit:None,
+            Sp: None,
+            Tp: None,
+            Trnspt: None,
+            Vol: None,
+
             
             // TODO: Say what these actually are in documentation
-            Debug: None,
-            Nonly: None,
-            Nomit: None,
-            Nsert: None,
+            // Debug: None,
+            // Nonly: None,
+            // Nomit: None,
+            // Nsert: None,
             Trace: None,
-            Short: None,
-            Massf: None,
-            Nplt: None,
-            Siunit: None,
+            // Short: None,
+            // Massf: None,
+            // Nplt: None,
+            // Siunit: None,
             pltdat: None,
             
             // Files that will be handled
@@ -205,18 +369,91 @@ pub fn run_legacy() {
     let mut readok = true;
 
     // label_100(&mut readok, &mut caseok, &mut ensert);
-
-    INPUT(&mut readok, &mut caseok, &mut ensert, &mut data)
+    let mut input_vars = INPUT_vals::initialize();
+    INPUT(&mut readok, &mut caseok, &mut ensert, &mut data, &mut input_vars);
 
 
 
 }
 
 struct INPUT_vals {
-    
+    // Locally saved variables for the "Subroutine"
+    cin: Option<[String; MAXNGC]>,
+    code: Option<String>,
+    cx1: Option<String>,
+    cx15: Option<String>,
+    cx2: Option<String>,
+    cx3: Option<String>,
+    cx4: Option<String>,
+    denmtr: Option<f64>,
+    dpin: Option<f64>,
+    eqrats: Option<bool>,
+    eratio: Option<f64>,
+    hr: Option<f64>,
+    i: Option<i64>,
+    ifrmla: Option<i64>,
+    ii: Option<i64>,
+    in_cea: Option<i64>,
+    incd: Option<bool>,
+    iv: Option<i64>,
+    ix: Option<i64>,
+    j: Option<i64>,
+    jj: Option<i64>,
+    k: Option<i64>,
+    lcin: Option<[i64; MAXNGC]>,
+    mix: Option<f64>,
+    ncin: Option<i64>,
+    nmix: Option<i64>,
+    phi: Option<bool>,
+    pltdat: Option<bool>,
+    reacts: Option<bool>,
+    refl: Option<bool>,
+    ur: Option<f64>,
+    xyz: Option<f64>
 }
 
-fn INPUT(readok: &mut bool, caseok: &mut bool, ensert: &mut [String; 20], data: &mut cea_data) {
+impl INPUT_vals {
+    fn initialize() -> Self {
+        let data = Self {
+            cin: Some(std::array::from_fn(|_| String::new())),
+            code: Some(String::new()),
+            cx1: Some(String::new()),
+            cx15: Some(String::new()),
+            cx2: Some(String::new()),
+            cx3: Some(String::new()),
+            cx4: Some(String::new()),
+            denmtr: None,
+            dpin: None,
+            eqrats: None,
+            eratio: None,
+            hr: None,
+            i: None,
+            ifrmla: None,
+            ii: None,
+            in_cea: None,
+            incd: None,
+            iv: None,
+            ix: None,
+            j: None,
+            jj: None,
+            k: None,
+            lcin: None,
+            mix: None,
+            ncin: None,
+            nmix: None,
+            phi: None,
+            pltdat: None,
+            reacts: None,
+            refl: None,
+            ur: None,
+            xyz: None
+        };
+
+        return data;
+    }
+}
+
+fn INPUT(readok: &mut bool, caseok: &mut bool, ensert: &mut [String; 20], data: &mut cea_data, input_vars: &mut INPUT_vals) {
   
     println!("{}", readok);
     println!("{}", caseok);
