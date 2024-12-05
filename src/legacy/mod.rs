@@ -14,6 +14,7 @@
 use std::io::{self, Write, Read};
 use std::fs::{File, OpenOptions};
 use tempfile::tempfile;
+use std::mem;
 
 
 // The following paramters set the maximum dimensions for many variables
@@ -46,6 +47,7 @@ const IOTRN: i32 = 18;
 // be mutable by just continuously passing around the structure
 // PSA: I know this is probably a terrible implementation for doing this
 // but it is going to work and it's the legacy version so who cares
+#[derive(Debug, Default)]
 struct cea_data {
     // Computational Block of Variables (cea.inc)
     Enn: Option<f64>,
@@ -265,16 +267,6 @@ struct cea_data {
     Prfro: Option<[f64; NCOL]>,
     Vis: Option<[f64; NCOL]>,
 
-
-    // TODO: Figure out what they all do
-    // Debug: Option<[bool; NCOL]>,
-    // Nonly: Option<isize>,
-    // Nomit: Option<isize>,
-    // Nsert: Option<isize>,
-    // Trace: Option<isize>,
-    // Short: Option<bool>,
-    // Massf: Option<bool>,
-    // Nplt: Option<isize>,
     // Siunit: Option<bool>,
     pltdat: Option<bool>,
 
@@ -289,256 +281,6 @@ struct cea_data {
     iosch: Option<File>,
 
 }
-
-impl cea_data {
-    fn initialize() -> Self {
-        let data = cea_data {
-            // Computational Block of Variables (cea.inc)
-            Enn: None,
-            Ennl: None,
-            Enlsav: None,
-            Ensave: None,
-            Sumn: None,
-            Deln: None,
-            En: None,
-
-            // Index Block of Variables (cea.inc)
-            Ip: None,
-            Iplt: None,
-            It: None,
-            Jcond: None,
-            Jx: None,
-            Nc: None,
-            Ng: None,
-            Ngp1: None,
-            Nlm: None,
-            Nplt: None,
-            Nof: None,
-            Nomit: None,
-            Nonly: None,
-            Np: None,
-            Npr: None,
-            Npt: None,
-            Ngc: None,
-            Nsert: None,
-            Nspr: None,
-            Nspx: None,
-            Nt: None,
-            Nfla: None,
-            Ifz: None,
-
-            // Input Block of Variables (cea.inc)
-            Am: None,
-            B0p: None,
-            Cpmix: None,
-            Hpp: None,
-            Vmin: None,
-            Vpls: None,
-            Wmix: None,
-            Wp: None,
-            Atmwt: None,
-            Bcheck: None,
-            Oxf: None,
-            P: None,
-            Rh: None,
-            T: None,
-            V: None,
-            Valnce: None,
-
-            // Miscellaneous Integers Block of Variables (cea.inc)
-            Imat: None,
-            Iq1: None,
-            Isv: None,
-            Jliq: None,
-            Jsol: None,
-            Lsave: None,
-            Msing: None,
-
-            // Miscellaneous Booleans Block of Variables (cea.inc)
-            Convg: None,
-            Debug: None,
-            Detdbg: None,
-            Detn: None,
-            Eql: None,
-            Gonly: None,
-            Hp: None,
-            Ions: None,
-            Massf: None,
-            Moles: None,
-            Newr: None,
-            Pderiv: None,
-            Shock: None,
-            Short: None,
-            Siunit:None,
-            Sp: None,
-            Tp: None,
-            Trnspt: None,
-            Vol: None,
-
-            // Miscellaneous Floating Points Block of Variables (cea.inc)
-            A: None,
-            Atwt: None,
-            Avgdr: None,
-            Boltz: None,
-            B0: None,
-            Eqrat: None,
-            G: None,
-            Hsub0: None,
-            Oxfl: None,
-            Pi: None,
-            Pp: None,
-            R: None,
-            Rr: None,
-            Size: None,
-            S0: None,
-            Tln: None,
-            Tm: None,
-            Trace: None,
-            Tt: None,
-            Viscns: None,
-            Vv: None,
-            X: None,
-
-            
-            // Strings (Character Arrays) Block of Variables (cea.inc)
-            Case: None,
-            Elmt: None,
-            Energy: None,
-            Fmt: None,
-            Fox: None,
-            Omit: None,
-            Pltvar: None,
-            Prod: None,
-            Ratom: None,
-            Rname: None,
-            Symbol: None,
-            Thdate: None,
-            Pfile: None,
-
-            // PRTOUT Block of Variables (cea.inc)
-            Cpr: None,
-            Dlvpt: None,
-            Dlvtp: None,
-            Gammas: None,
-            Hsum: None,
-            Ppp: None,
-            Ssum: None,
-            Totn: None,
-            Ttt: None,
-            Vlm: None,
-            Wm: None,
-            Pltout: None,
-
-            // Reaction REACTN Block of Variables (cea.inc)
-            Dens: None,
-            Enth: None,
-            Pecwt: None,
-            Rmw: None,
-            Rnum: None,
-            Rtemp: None,
-            Jray: None,
-            Nreac: None,
-
-            // Thermal THERM Block of Variables (cea.inc)
-            Cft: None,
-            Coef: None,
-            Cp: None,
-            Cpsum: None,
-            H0: None,
-            Mu: None,
-            Mw: None,
-            S: None,
-            Temp: None,
-            Tg: None,
-
-            // Rocket ROCKT Block of Variables (cea.inc)
-            Acat: None,
-            Aeat: None,
-            App: None,
-            Awt: None,
-            Cstr: None,
-            Ma: None,
-            Pcp: None,
-            Sonvel: None,
-            Spim: None,
-            Subar: None,
-            Supar: None,
-            Vmoc: None,
-            Tcest: None,
-            Area: None,
-            Iopt: None,
-            Debugf: None,
-            Fac: None,
-            Froz: None,
-            Isup: None,
-            Nfz: None,
-            Npp: None,
-            Nsub: None,
-            Nsup: None,
-            Page1: None,
-            Rkt: None,
-
-            // Shockwave values SHOCKS Block of Variables (cea.inc)
-            U1: None,
-            Mach1: None,
-            A1: None,
-            Gamma1: None,
-            Incdeq: None,
-            Incdfz: None,
-            Refleq: None,
-            Reflfz: None,
-            Shkdbg: None,
-            Nsk: None,
-
-            // Transport Properties TRNP Block of Variables (cea.inc)
-            Cprr: None,
-            Con: None,
-            Eta: None,
-            Wmol: None,
-            Xs: None,
-            Stc: None,
-            Ind: None,
-            Jcm: None,
-            Nm: None,
-            Nr: None,
-            Ntape: None,
-
-            // Transport Properties TRPTS Block of Variables (cea.inc)
-            Coneql: None,
-            Confro: None,
-            Cpeql: None,
-            Cpfro: None,
-            Preql: None,
-            Prfro: None,
-            Vis: None,
-            
-            // TODO: Say what these actually are in documentation
-            // Debug: None,
-            // Nonly: None,
-            // Nomit: None,
-            // Nsert: None,
-            // Trace: None,
-            // Short: None,
-            // Massf: None,
-            // Nplt: None,
-            // Siunit: None,
-            pltdat: None,
-            
-            // Files that will be handled
-            ioout: None,
-            ioinp: None,
-            ioplt: None,
-
-            // Library and Scratch Files
-            iothm: None,
-            iotrn: None,
-            iosch: None,
-        };
-
-        return data;
-    }
-}
-
 
 // STATIC VARIABLES ADDED
 // static mut NONLY: i32 = 0;
@@ -574,7 +316,12 @@ pub fn run_legacy() {
     println!("   THE OUTPUT FILES FOR LISTING AND PLOTTING WILL HAVE");
     println!(" THE SAME NAME WITH EXTENSIONS .out AND .plt RESPECTIVELY\n\n");
 
-    let mut data: cea_data = cea_data::initialize();
+    // let mut data: cea_data = cea_data::initialize();
+    let mut data: cea_data = Default::default();
+
+    let data_size = mem::size_of::<cea_data>();
+    println!("{}", data_size);
+    println!("{:?}", data);
 
     // Grabs value from input and formats it.
     let mut prefix = String::new();
