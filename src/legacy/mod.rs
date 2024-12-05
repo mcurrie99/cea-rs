@@ -395,6 +395,7 @@ pub fn run_legacy() {
 
 }
 
+#[derive(Debug, Default)]
 struct INPUT_vals {
     // Locally saved variables for the "Subroutine"
     cin: Option<[String; MAXNGC]>,
@@ -429,47 +430,6 @@ struct INPUT_vals {
     refl: Option<bool>,
     ur: Option<f64>,
     xyz: Option<f64>
-}
-
-impl INPUT_vals {
-    fn initialize() -> Self {
-        let data = Self {
-            cin: Some(std::array::from_fn(|_| String::new())),
-            code: Some(String::new()),
-            cx1: Some(String::new()),
-            cx15: Some(String::new()),
-            cx2: Some(String::new()),
-            cx3: Some(String::new()),
-            cx4: Some(String::new()),
-            denmtr: None,
-            dpin: None,
-            eqrats: None,
-            eratio: None,
-            hr: None,
-            i: None,
-            ifrmla: None,
-            ii: None,
-            in_cea: None,
-            incd: None,
-            iv: None,
-            ix: None,
-            j: None,
-            jj: None,
-            k: None,
-            lcin: None,
-            mix: None,
-            ncin: None,
-            nmix: None,
-            phi: None,
-            pltdat: None,
-            reacts: None,
-            refl: None,
-            ur: None,
-            xyz: None
-        };
-
-        return data;
-    }
 }
 
 fn INPUT(readok: &mut bool, caseok: &mut bool, ensert: &mut [String; 20], data: &mut cea_data, input_vars: &mut INPUT_vals) {
